@@ -21,9 +21,9 @@ namespace SdlSharp.OpenGL
     public class GLTexture : ITexture
     {
         /// <summary>
-        /// The GL context.
+        /// The renderer.
         /// </summary>
-        private readonly OpenGLRenderer context;
+        private readonly OpenGLRenderer renderer;
 
         /// <summary>
         /// The texture identifier.
@@ -31,31 +31,36 @@ namespace SdlSharp.OpenGL
         private readonly uint id;
 
         /// <summary>
+        /// Whether we have been disposed.
+        /// </summary>
+        private bool disposedValue;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="GLTexture"/> class.
         /// </summary>
-        /// <param name="context">The GL context.</param>
+        /// <param name="renderer">The renderer.</param>
         /// <param name="surface">The surface.</param>
-        public GLTexture(OpenGLRenderer context, Surface surface)
+        public GLTexture(OpenGLRenderer renderer, Surface surface)
         {
-            this.context = context;
-            var GL = context.GL;
+            this.renderer = renderer;
+            var gl = renderer.GL;
 
             var textures = new uint[1];
-            GL.GenTextures(1, textures);
+            gl.GenTextures(1, textures);
             id = textures[0];
 
             Bind();
 
-            GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_NEAREST);
-            GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_NEAREST);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_NEAREST);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_NEAREST);
 
             var format = (SDL.SDL_PixelFormat)Marshal.PtrToStructure(surface.SurfaceStruct.format, typeof(SDL.SDL_PixelFormat));
 
             // map the surface to the texture in video memory, according to whether the texture has alpha
             if (format.Amask == 0)
-                GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGB, surface.Size.X(), surface.Size.Y(), 0, OpenGL.GL_RGB, OpenGL.GL_UNSIGNED_BYTE, surface.SurfaceStruct.pixels);
+                gl.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGB, surface.Size.X(), surface.Size.Y(), 0, OpenGL.GL_RGB, OpenGL.GL_UNSIGNED_BYTE, surface.SurfaceStruct.pixels);
             else
-                GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGBA, surface.Size.X(), surface.Size.Y(), 0, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, surface.SurfaceStruct.pixels);
+                gl.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGBA, surface.Size.X(), surface.Size.Y(), 0, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, surface.SurfaceStruct.pixels);
 
             Size = surface.Size;
         }
@@ -91,7 +96,7 @@ namespace SdlSharp.OpenGL
         /// </summary>
         public void Bind()
         {
-            context.GL.BindTexture(OpenGL.GL_TEXTURE_2D, id);
+            renderer.GL.BindTexture(OpenGL.GL_TEXTURE_2D, id);
         }
 
         /// <summary>
@@ -103,7 +108,7 @@ namespace SdlSharp.OpenGL
         /// <param name="origin">The relative point to draw and rotate around. Null for the same as position.</param>
         public void Draw(double[] position, double[] rotation, double[] scale, int[] origin)
         {
-            var GL = context.GL;
+            var GL = renderer.GL;
 
             GL.Enable(OpenGL.GL_TEXTURE_2D);
 
@@ -131,12 +136,23 @@ namespace SdlSharp.OpenGL
             GL.Disable(OpenGL.GL_TEXTURE_2D);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                    renderer.GL.DeleteTextures(1, new uint[] { id });
+
+                disposedValue = true;
+            }
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            context.GL.DeleteTextures(1, new uint[] { id });
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

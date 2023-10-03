@@ -36,6 +36,12 @@ namespace SdlSharp.OpenGL
     public class OpenGLRenderer : IRenderer
     {
         private readonly Window window;
+        private bool disposedValue;
+
+        /// <summary>
+        /// Sdl handle.
+        /// </summary>
+        private IntPtr handle;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenGLRenderer" /> class.
@@ -47,21 +53,13 @@ namespace SdlSharp.OpenGL
         {
             this.window = window;
 
-            Handle = SDL.SDL_GL_CreateContext(window.Handle);
+            handle = SDL.SDL_GL_CreateContext(window.Handle);
 
             GL = new OpenGL();
 
-            GL.Create(openGLVersion, RenderContextType.NativeWindow, window.Size.X(), window.Size.Y(), bitDepth, Handle);
-            //gl.CreateFromExternalContext(openGLVersion, window.Size.X(), window.Size.Y(), bitDepth, window.Handle,)
+            GL.Create(openGLVersion, RenderContextType.NativeWindow, window.Size.X(), window.Size.Y(), bitDepth, handle);
+            //gl.CreateFromExternalContext(openGLVersion, window.Size.X(), window.Size.Y(), bitDepth, window.handle,)
         }
-
-        /// <summary>
-        /// Gets the sdl handle.
-        /// </summary>
-        /// <value>
-        /// The sdl handle.
-        /// </value>
-        public IntPtr Handle { get; }
 
         /// <summary>
         /// OpenGL handle.
@@ -87,15 +85,7 @@ namespace SdlSharp.OpenGL
             SDL.SDL_GL_SwapWindow(window.Handle);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            SDL.SDL_GL_DeleteContext(Handle);
-
-            GC.SuppressFinalize(this);
-        }
+        
 
         /// <summary>
         /// Sets the viewport.
@@ -309,6 +299,26 @@ namespace SdlSharp.OpenGL
             GL.End();
 
             GL.Disable(OpenGL.GL_TEXTURE_2D);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                    SDL.SDL_GL_DeleteContext(handle);
+
+                disposedValue = true;
+            }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
