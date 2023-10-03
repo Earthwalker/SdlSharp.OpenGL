@@ -23,7 +23,7 @@ namespace SdlSharp.OpenGL
         /// <summary>
         /// The GL context.
         /// </summary>
-        private readonly GLContext context;
+        private readonly OpenGLRenderer context;
 
         /// <summary>
         /// The texture identifier.
@@ -35,7 +35,7 @@ namespace SdlSharp.OpenGL
         /// </summary>
         /// <param name="context">The GL context.</param>
         /// <param name="surface">The surface.</param>
-        public GLTexture(GLContext context, Surface surface)
+        public GLTexture(OpenGLRenderer context, Surface surface)
         {
             this.context = context;
             var GL = context.GL;
@@ -71,7 +71,7 @@ namespace SdlSharp.OpenGL
         /// <returns>
         /// The new <see cref="ITexture" />.
         /// </returns>
-        public static GLTexture Create(TextureManager textureManager, GLContext renderer, string fileName)
+        public static GLTexture Create(TextureManager textureManager, OpenGLRenderer renderer, string fileName)
         {
             // check if the texture has already been loaded
             var texture = textureManager.GetTextureFromName(fileName);

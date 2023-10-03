@@ -33,17 +33,17 @@ namespace SdlSharp.OpenGL
     /// <summary>
     /// Renderer
     /// </summary>
-    public class GLContext : IRenderer
+    public class OpenGLRenderer : IRenderer
     {
         private readonly Window window;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GLContext" /> class.
+        /// Initializes a new instance of the <see cref="OpenGLRenderer" /> class.
         /// </summary>
         /// <param name="window">The window where rendering is displayed.</param>
         /// <param name="openGLVersion">The OpenGL version.</param>
         /// <param name="bitDepth">The bit depth.</param>
-        public GLContext(Window window, OpenGLVersion openGLVersion, int bitDepth)
+        public OpenGLRenderer(Window window, OpenGLVersion openGLVersion, int bitDepth)
         {
             this.window = window;
 
